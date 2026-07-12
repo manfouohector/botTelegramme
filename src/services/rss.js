@@ -1,9 +1,16 @@
 const Parser = require('rss-parser');
 
 const DEFAULT_FEEDS = [
+  // ── Sources internationales ──────────────────────────────────────────────
   { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
   { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
-  { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index' }
+  { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index' },
+  // ── Sources locales Cameroun / Afrique tech ──────────────────────────────
+  { name: 'CamerounInfo (Tech)', url: 'https://www.camerouninfo.net/index.php?option=com_content&view=category&id=51&format=feed&type=rss' },
+  { name: 'Cameroon-Info.Net', url: 'https://www.cameroon-info.net/rss/categorie/61/informatique.xml' },
+  { name: '237online', url: 'https://www.237online.com/category/tech-et-innovation/feed/' },
+  { name: 'TechAfrica', url: 'https://techafrique.com/feed/' },
+  { name: 'Afrik21 (Numérique)', url: 'https://www.afrik21.africa/category/nouvelles-technologies/feed/' }
 ];
 
 class RssService {
@@ -64,8 +71,8 @@ class RssService {
       return dateB - dateA;
     });
 
-    // Return the top 20 latest articles to avoid overloading Groq
-    return allItems.slice(0, 20);
+    // Return the top 30 latest articles across all sources (inc. Cameroonian feeds)
+    return allItems.slice(0, 30);
   }
 }
 

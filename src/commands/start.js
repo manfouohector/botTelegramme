@@ -9,21 +9,44 @@ module.exports = async (ctx) => {
 
   const welcomeMessage = `👋 *Bienvenue sur le Bot de Pronostics & Actualités Tech !*
 
-Je suis votre assistant quotidien. Voici mes fonctionnalités :
-⚽ *Pronostics Football* : Des pronostics générés par IA et grounded par recherche en ligne.
-📰 *Actualités Tech* : Un condensé quotidien en français des actus tech majeures.
+Je suis votre assistant tech quotidien, propulsé par IA (Gemini + Groq).
 
-💡 *Commandes disponibles :*
-/coupon - Récupère le coupon de pronostics du jour (généré à 8h00)
-/matchs - Affiche la liste des matchs analysés du jour
-/technews - Récupère les actualités tech du jour (généré à 9h00)
-/aide - Affiche la liste des commandes et des explications
+━━━━━━━━━━━━━━━━━━━━
+🤖 *Ce que je sais faire :*
+━━━━━━━━━━━━━━━━━━━━
+⚽ *Pronostics Football* — coupons générés par IA avec analyse approfondie chaque matin à *8h00*.
+📰 *Actualités Tech* — sélection quotidienne des meilleures news tech en français à *9h00*.
+💬 *Assistant Tech* — posez-moi n'importe quelle question technique, je répondrai en direct !
 
-_Note : Toutes les données sont pré-générées quotidiennement pour optimiser les performances et maîtriser les coûts._`;
+━━━━━━━━━━━━━━━━━━━━
+📋 *Commandes disponibles :*
+━━━━━━━━━━━━━━━━━━━━
+/coupon — Coupon football du jour (généré à 8h00)
+/matchs — Matchs analysés du jour avec statistiques
+/historique — 5 derniers coupons de football
+/technews — Actualités tech du jour (catégorisées + TL;DR)
+/aide — Aide détaillée sur les commandes
+
+━━━━━━━━━━━━━━━━━━━━
+🔒 *Commandes admin :*
+━━━━━━━━━━━━━━━━━━━━
+/status — État du bot (SQLite, Cron, Webhook)
+/refresh\\_coupon — Régénérer manuellement le coupon
+
+━━━━━━━━━━━━━━━━━━━━
+💡 *Astuce :* Envoyez simplement votre question technique en message direct, je répondrai avec l'aide de Gemini & Groq !
+
+_Les données sont générées automatiquement chaque jour pour optimiser les performances._`;
 
   try {
     await ctx.replyWithMarkdown(welcomeMessage);
   } catch (error) {
     console.error('Erreur lors de la réponse au /start:', error.message);
+    // Retry without Markdown if it fails due to parse errors
+    try {
+      await ctx.reply('Bienvenue ! Utilisez /aide pour voir les commandes disponibles.');
+    } catch (e) {
+      console.error('Erreur critique lors du /start:', e.message);
+    }
   }
 };

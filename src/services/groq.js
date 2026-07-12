@@ -178,6 +178,52 @@ Le format de réponse DOIT être uniquement un objet JSON valide, sans markdown,
       throw error;
     }
   }
+  /**
+   * Answers a free tech question from a Telegram user using Groq (fallback to Gemini)
+   * @param {string} userQuestion The user's raw message text
+   * @returns {{ isTech: boolean, answer: string }}
+   */
+  async answerTechQuestion(userQuestion) {
+    if (!this.groq) {
+      return { isTech: false, answer: null };
+    }
+
+    const systemPrompt = `Tu es un assistant technique expert et passionné de technologie. 
+Un utilisateur t'a posé la question suivante en français.
+
+Tu dois :
+1. Déterminer si la question est liée à la technologie (IA, programmation, cybersécurité, cloud, DevOps, mobile, bases de données, réseaux, hardware, logiciels, frameworks, etc.).
+2. Si oui : apporte une réponse claire, structurée et pédagogique en français. Formate la réponse pour Telegram en Markdown (*gras*, _italique_, etc.).
+3. Si non : réponds UNIQUEMENT avec le JSON {"isTech":false}
+
+Retourne TOUJOURS un objet JSON valide avec la structure suivante :
+- {"isTech":true,"answer":"ta réponse en Markdown"} si c'est une question tech
+- {"isTech":false} si ce n'est pas une question tech
+
+Le JSON doit être la réponse entière, sans texte avant ou après.`;
+
+    try {
+      const response = await this.groq.chat.completions.create({
+        model: this.model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userQuestion }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.4
+      });
+
+      const content = response.choices[0].message.content;
+      const parsed = JSON.parse(content);
+      return {
+        isTech: parsed.isTech === true,
+        answer: parsed.answer || null
+      };
+    } catch (error) {
+      console.error('[GROQ] Erreur lors de la réponse à la question libre:', error.message);
+      return { isTech: false, answer: null };
+    }
+  }
 }
 
 module.exports = new GroqService();

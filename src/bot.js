@@ -1,14 +1,11 @@
 const { Telegraf } = require('telegraf');
 const db = require('./db/database');
+const geminiService = require('./services/gemini');
+const groqService = require('./services/groq');
+
 // Admin Telegram user IDs (comma‑separated in .env e.g. ADMIN_TELEGRAM_IDS=123456,789012)
 const ADMIN_IDS = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => parseInt(id)).filter(Boolean);
 
-// Keywords to detect in free‑text messages (lower‑case)
-const TECH_KEYWORDS = [
-  'ia', 'intelligence artificielle', 'cybersécurité', 'framework', 'frameworks web', 'cloud', 'dev',
-  'programmation', 'docker', 'node.js', 'linux', 'api', 'express', 'mysql', 'php', 'java',
-  'kubernetes', 'git', 'vs code', 'sql', 'sécurité réseau', 'bases de données', 'devops', 'mobile'
-];
 
 let bot = null;
 
@@ -38,17 +35,46 @@ function initBot() {
   bot.command('refresh_coupon', require('./commands/refresh_coupon'));
 
 
-  // Text message handler – respond only to tech‑related content
+  // Text message handler – call Gemini first, then Groq as fallback
   bot.on('text', async (ctx, next) => {
+    // Ignore slash commands – they are handled by command handlers
     if (ctx.message.text && ctx.message.text.startsWith('/')) {
       return next();
     }
-    const text = (ctx.message.text || '').toLowerCase();
-    const isTech = TECH_KEYWORDS.some(kw => text.includes(kw));
-    if (isTech) {
-      await ctx.reply('Voici une ressource utile sur ce sujet : https://example.com');
-    } else {
-      await ctx.reply('⚠️ Désolé, je ne peux répondre qu\'aux messages techniques.');
+
+    const userText = ctx.message.text || '';
+    
+    // Show a typing indicator while the AI processes the response
+    await ctx.sendChatAction('typing');
+
+    try {
+      // Step 1 – Try Gemini (with Google Search grounding)
+      const geminiResponse = await geminiService.answerFreeQuestion(userText);
+
+      if (geminiResponse) {
+        if (geminiResponse.trim() === 'HORS_SUJET') {
+          return ctx.reply('⚠️ Ce bot ne traite que des sujets techniques. Posez-moi une question sur l\'IA, la programmation, le cloud, la cybersécurité, etc.');
+        }
+        return ctx.reply(geminiResponse, { parse_mode: 'Markdown' });
+      }
+
+      // Step 2 – Fallback to Groq if Gemini is unavailable
+      console.log('[BOT] Gemini indisponible, utilisation de Groq en fallback...');
+      const groqResponse = await groqService.answerTechQuestion(userText);
+
+      if (!groqResponse.isTech) {
+        return ctx.reply('⚠️ Ce bot ne traite que des sujets techniques. Posez-moi une question sur l\'IA, la programmation, le cloud, la cybersécurité, etc.');
+      }
+
+      if (groqResponse.answer) {
+        return ctx.reply(groqResponse.answer, { parse_mode: 'Markdown' });
+      }
+
+      // Final fallback if both services fail
+      return ctx.reply('Désolé, je n\'ai pas pu générer une réponse pour le moment. Veuillez réessayer.');
+    } catch (error) {
+      console.error('[BOT] Erreur dans le handler de messages texte:', error.message);
+      return ctx.reply('Une erreur est survenue lors du traitement de votre message. Veuillez réessayer.');
     }
   });
 

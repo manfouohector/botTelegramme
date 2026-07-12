@@ -76,6 +76,39 @@ Termine par une conclusion rapide en français sur la cohérence du pronostic en
   }
 
   /**
+   * Answers a free tech question from a Telegram user using Gemini with Google Search grounding
+   * @param {string} userQuestion The user's raw message text
+   * @returns {string} Formatted Markdown response
+   */
+  async answerFreeQuestion(userQuestion) {
+    if (!this.model) {
+      return null; // Fallback to Groq
+    }
+
+    const prompt = `Tu es un assistant technique expert et passionné de technologie. Un utilisateur t'a posé la question suivante en français :
+
+"${userQuestion}"
+
+Tu dois :
+1. Vérifier que la question est bien liée à la technologie (IA, programmation, cybersécurité, cloud, DevOps, mobile, bases de données, réseaux, hardware, logiciels, etc.).
+2. Si oui : apporte une réponse claire, structurée et pédagogique en français. Utilise des exemples concrets si nécessaire. Formate la réponse pour Telegram (utilise *gras* et _italique_ avec du Markdown Telegram).
+3. Si la question N'est PAS liée à la technologie, réponds UNIQUEMENT avec le mot : HORS_SUJET
+
+IMPORTANT : Ne réponds jamais à des demandes non techniques. Pas de politique, cuisine, sport, etc.`;
+
+    try {
+      console.log('[GEMINI] Réponse à une question libre de l\'utilisateur...');
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      return text;
+    } catch (error) {
+      console.error('[GEMINI] Erreur lors de la réponse à la question libre:', error.message);
+      return null; // Fallback to Groq
+    }
+  }
+
+  /**
    * Fallback method if Gemini API call fails or key is missing
    */
   getFallbackAnalysis(match) {
