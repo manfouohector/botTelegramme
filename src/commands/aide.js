@@ -5,9 +5,14 @@ module.exports = async (ctx) => {
 /coupon - Affiche le coupon de pronostics football du jour (généré à 8h00)
 /matchs - Affiche la liste simplifiée des matchs analysés du jour
 /technews - Affiche le résumé des actualités tech du jour (généré à 9h00)
+/historique - Affiche l'historique des 5 derniers coupons
 /aide - Affiche ce message d'aide
 
-Les résultats sont générés automatiquement chaque matin. Si un coupon ou des actualités ne sont pas encore prêts, le bot vous le signalera.`;
+🔒 *Commandes Administrateur :*
+/status - Affiche l'état du système (Base de données, Cron, Webhook)
+/refresh_coupon - Force la régénération manuelle du coupon football
+
+_Note : Les résultats normaux (coupons et news) sont générés automatiquement chaque matin. L'assistant Tech est aussi disponible en m'envoyant un message direct !_`;
 
   try {
     await ctx.replyWithMarkdown(helpMessage);
