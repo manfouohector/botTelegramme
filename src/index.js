@@ -17,13 +17,14 @@ async function main() {
     const bot = initBot();
     if (bot) {
       // Démarrer Telegraf
-      bot.launch()
-        .then(() => {
-          console.log('🤖 Le Bot Telegram est en ligne !');
-        })
-        .catch(err => {
-          console.error("❌ Échec du démarrage du Bot Telegram:", err.message);
-        });
+      if (process.env.WEBHOOK_URL) {
+        // Webhook mode – no polling launch
+        console.log('🤖 Bot en mode webhook, démarrage par Render');
+      } else {
+        bot.launch()
+          .then(() => console.log('🤖 Le Bot Telegram est en ligne (polling)'))
+          .catch(err => console.error('❌ Échec du démarrage du Bot Telegram:', err.message));
+      }
 
       // Gérer l'arrêt propre
       process.once('SIGINT', () => bot.stop('SIGINT'));

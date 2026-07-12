@@ -11,6 +11,10 @@ function initBot() {
   }
   
   bot = new Telegraf(token);
+  // Configure webhook for Render deployment
+  const webhookUrl = process.env.WEBHOOK_URL || 'https://bottelegramme.onrender.com/bot';
+  bot.telegram.setWebhook(webhookUrl);
+  console.log(`🔗 Webhook configuré : ${webhookUrl}`);
 
   // Register commands
   bot.command('start', require('./commands/start'));

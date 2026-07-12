@@ -5,6 +5,12 @@ const { getLocalDateString } = require('./services/scheduler');
 function createServer() {
   const app = express();
   app.use(express.json());
+  // Attach Telegraf webhook for /bot route
+  const { getBotInstance } = require('./bot');
+  const bot = getBotInstance();
+  if (bot) {
+    app.use(bot.webhookCallback('/bot'));
+  }
 
   // Health check endpoint
   app.get('/health', (req, res) => {
