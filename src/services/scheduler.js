@@ -1,3 +1,5 @@
+let schedulerActive = false;
+
 const cron = require('node-cron');
 const { runFootballPipeline, runTechNewsPipeline } = require('./pipeline');
 
@@ -37,6 +39,7 @@ function initScheduler() {
     }
   });
 
+  schedulerActive = true;
   console.log('Tâches planifiées (cron) initialisées :');
   console.log(' - Coupon Football : tous les jours à 08h00');
   console.log(' - Actualités Tech : tous les jours à 09h00');
@@ -44,5 +47,6 @@ function initScheduler() {
 
 module.exports = {
   initScheduler,
-  getLocalDateString
+  getLocalDateString,
+  isSchedulerActive: () => schedulerActive
 };
