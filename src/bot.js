@@ -1,5 +1,14 @@
 const { Telegraf } = require('telegraf');
 const db = require('./db/database');
+// Admin Telegram user IDs (comma‑separated in .env e.g. ADMIN_TELEGRAM_IDS=123456,789012)
+const ADMIN_IDS = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => parseInt(id)).filter(Boolean);
+
+// Keywords to detect in free‑text messages (lower‑case)
+const TECH_KEYWORDS = [
+  'ia', 'intelligence artificielle', 'cybersécurité', 'framework', 'frameworks web', 'cloud', 'dev',
+  'programmation', 'docker', 'node.js', 'linux', 'api', 'express', 'mysql', 'php', 'java',
+  'kubernetes', 'git', 'vs code', 'sql', 'sécurité réseau', 'bases de données', 'devops', 'mobile'
+];
 
 let bot = null;
 
@@ -17,11 +26,28 @@ function initBot() {
   console.log(`🔗 Webhook configuré : ${webhookUrl}`);
 
   // Register commands
+  // Register commands
   bot.command('start', require('./commands/start'));
   bot.command('coupon', require('./commands/coupon'));
   bot.command('matchs', require('./commands/matchs'));
   bot.command('technews', require('./commands/technews'));
   bot.command('aide', require('./commands/aide'));
+  // New admin‑only commands
+  bot.command('status', require('./commands/status'));
+  bot.command('historique', require('./commands/historique'));
+  bot.command('refresh_coupon', require('./commands/refresh_coupon'));
+
+
+  // Text message handler – respond only to tech‑related content
+  bot.on('text', async (ctx) => {
+    const text = (ctx.message.text || '').toLowerCase();
+    const isTech = TECH_KEYWORDS.some(kw => text.includes(kw));
+    if (isTech) {
+      await ctx.reply('Voici une ressource utile sur ce sujet : https://example.com');
+    } else {
+      await ctx.reply('⚠️ Désolé, je ne peux répondre qu\'aux messages techniques.');
+    }
+  });
 
   // Catch errors to prevent bot crashes
   bot.catch((err, ctx) => {
