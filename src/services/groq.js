@@ -101,42 +101,78 @@ Règles de style :
     }
   }
 
-  /**
-   * Selects and summarizes 5 tech news items from parsed RSS feed
-   * @param {Array} newsItems RSS parsed news items
-   */
   async summarizeTechNews(newsItems) {
     if (!this.groq) {
       throw new Error("Groq API n'est pas initialisé (clé d'API manquante).");
     }
 
     if (!newsItems || newsItems.length === 0) {
-      return "Aucune actualité technologique n'est disponible aujourd'hui.";
+      return JSON.stringify([]);
     }
 
-    const systemPrompt = `Tu es un vulgarisateur et expert tech de haut niveau. Voici une liste d'articles technologiques récents issus de flux RSS :
-${JSON.stringify(newsItems, null, 2)}
+    const inputItems = newsItems.map((item, idx) => ({
+      id: idx,
+      source: item.source,
+      title: item.title,
+      content: item.content
+    }));
 
+    const systemPrompt = `Tu es un vulgarisateur et expert tech de haut niveau.
+Voici une liste d'articles technologiques récents au format JSON.
 Sélectionne les 5 actualités les plus importantes pour des développeurs ou utilisateurs passionnés de technologie.
-Pour chacune des 5 actualités sélectionnées, explique-la en français de manière claire et pédagogique en 3-4 phrases en respectant la structure suivante :
-1. Ce qui s'est passé (le fait d'actualité).
-2. Pourquoi c'est important (la portée technique ou stratégique).
-3. L'impact concret pour un développeur ou un utilisateur tech.
 
-Formate le tout sous forme de message Telegram attrayant avec des émojis, des titres clairs en gras pour chaque actualité, et une séparation nette entre les sujets.
-Ajoute un titre principal accrocheur (ex: "📰 TECH NEWS DU JOUR 📰") au tout début.
-Ne mets pas de blabla d'introduction ou de conclusion inutile, va droit au but.`;
+Pour chaque actualité sélectionnée, tu dois :
+1. Catégoriser l'article parmi les catégories suivantes : "IA", "Cybersécurité", "Frameworks Web", "Cloud", "DevOps", "Mobile", "Bases de données".
+2. Traduire et adapter le titre en français.
+3. Rédiger un résumé "TL;DR" en français de 3 lignes concises (chaque ligne doit être une phrase courte et informative).
+
+Tu dois renvoyer obligatoirement un objet JSON contenant une clé "news" qui est un tableau d'objets. Chaque objet doit avoir la structure suivante :
+- id : l'identifiant (nombre correspondant à l'id de l'article d'origine)
+- category : la catégorie (string parmi la liste ci-dessus)
+- title : le titre en français (string)
+- tldr : le résumé TL;DR de 3 lignes (string avec des retours à la ligne ou une liste à puces)
+
+Exemple de format attendu :
+{
+  "news": [
+    {
+      "id": 0,
+      "category": "IA",
+      "title": "Lancement de GPT-5 par OpenAI",
+      "tldr": "- OpenAI annonce officiellement le lancement de son nouveau modèle de langage.\\n- Ce modèle offre des performances de raisonnement avancées et un support multimodal amélioré.\\n- Les développeurs peuvent y accéder dès aujourd'hui via l'API officielle."
+    }
+  ]
+}
+
+Le format de réponse DOIT être uniquement un objet JSON valide, sans markdown, sans \`\`\`json et sans texte avant ou après.`;
+
+    const userPrompt = `Articles :\n${JSON.stringify(inputItems, null, 2)}`;
 
     try {
       const response = await this.groq.chat.completions.create({
         model: this.model,
         messages: [
-          { role: 'user', content: systemPrompt }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
         ],
-        temperature: 0.5
+        response_format: { type: 'json_object' },
+        temperature: 0.3
       });
 
-      return response.choices[0].message.content;
+      const content = response.choices[0].message.content;
+      const parsed = JSON.parse(content);
+      
+      const finalArticles = (parsed.news || []).map(item => {
+        const original = newsItems[item.id] || {};
+        return {
+          category: item.category || 'Tech',
+          title: item.title || original.title || 'Actualité',
+          tldr: item.tldr || '',
+          url: original.link || 'https://techcrunch.com'
+        };
+      });
+
+      return JSON.stringify(finalArticles);
     } catch (error) {
       console.error('Erreur lors de la génération des actualités par Groq:', error.message);
       throw error;

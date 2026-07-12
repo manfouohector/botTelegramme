@@ -28,7 +28,19 @@ async function runFootballPipeline(dateStr) {
     // Étape 2: Tri rapide (Groq)
     console.log(`[PIPELINE] Sélection des meilleurs matchs par Groq...`);
     const selection = await groqService.selectTopMatches(enrichedMatches);
-    selectedMatches = selection.selected_matches || [];
+    selectedMatches = (selection.selected_matches || []).map(selected => {
+      const original = enrichedMatches.find(m => m.id === selected.match_id);
+      if (original) {
+        return {
+          ...selected,
+          home_position: original.homeTeam.position,
+          home_form: original.homeTeam.form,
+          away_position: original.awayTeam.position,
+          away_form: original.awayTeam.form
+        };
+      }
+      return selected;
+    });
 
     if (selectedMatches.length === 0) {
       couponText = `⚽ **Pronostics du ${dateStr}** ⚽\n\n Aucun match ne présente un indice de confiance suffisant aujourd'hui pour générer des pronostics fiables. À demain !`;

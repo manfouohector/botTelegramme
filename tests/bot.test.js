@@ -8,6 +8,9 @@ const aideCmd = require('../src/commands/aide');
 const couponCmd = require('../src/commands/coupon');
 const matchsCmd = require('../src/commands/matchs');
 const technewsCmd = require('../src/commands/technews');
+const statusCmd = require('../src/commands/status');
+const historiqueCmd = require('../src/commands/historique');
+const refreshCouponCmd = require('../src/commands/refresh_coupon');
 
 function getLocalDateString() {
   const d = new Date();
@@ -28,6 +31,7 @@ test('Bot Commands Test Suite', async (t) => {
     const replies = [];
     return {
       chat: { id: chatId, type: chatType },
+      from: { id: parseInt(chatId, 10) },
       replies,
       async reply(text, options) {
         replies.push({ text, options });
@@ -143,6 +147,78 @@ test('Bot Commands Test Suite', async (t) => {
 
     assert.strictEqual(ctx.replies.length, 1);
     assert.ok(ctx.replies[0].text.includes('Apple sort son nouveau casque'));
+  });
+
+  await t.test('/status command - non-admin access', async () => {
+    process.env.ADMIN_TELEGRAM_IDS = '99999999';
+    const ctx = createMockCtx(testChatId);
+    await statusCmd(ctx);
+
+    assert.strictEqual(ctx.replies.length, 1);
+    assert.ok(ctx.replies[0].text.includes('réservée aux administrateurs'));
+  });
+
+  await t.test('/status command - admin access', async () => {
+    process.env.ADMIN_TELEGRAM_IDS = testChatId;
+    process.env.WEBHOOK_URL = 'https://mywebhook.com/bot';
+    const ctx = createMockCtx(testChatId);
+    await statusCmd(ctx);
+
+    assert.strictEqual(ctx.replies.length, 1);
+    assert.ok(ctx.replies[0].text.includes('SQLite OK') || ctx.replies[0].text.includes('SQLite KO'));
+    assert.ok(ctx.replies[0].text.includes('mywebhook.com/bot'));
+  });
+
+  await t.test('/historique command - empty history', async () => {
+    const sqlite = db.getDb();
+    sqlite.prepare('DELETE FROM coupons').run();
+    
+    const ctx = createMockCtx(testChatId);
+    await historiqueCmd(ctx);
+
+    assert.strictEqual(ctx.replies.length, 1);
+    assert.ok(ctx.replies[0].text.includes("Aucun coupon n'est enregistré"));
+  });
+
+  await t.test('/historique command - with history', async () => {
+    db.saveCoupon('2099-01-01', 'Dummy coupon 1', JSON.stringify([]));
+    db.saveCoupon('2099-01-02', 'Dummy coupon 2', JSON.stringify([]));
+
+    const ctx = createMockCtx(testChatId);
+    await historiqueCmd(ctx);
+
+    assert.strictEqual(ctx.replies.length, 1);
+    assert.ok(ctx.replies[0].text.includes('Historique des 5 derniers coupons'));
+    assert.ok(ctx.replies[0].text.includes('Dummy coupon 1'));
+    assert.ok(ctx.replies[0].text.includes('Dummy coupon 2'));
+    
+    const sqlite = db.getDb();
+    sqlite.prepare("DELETE FROM coupons WHERE date IN ('2099-01-01', '2099-01-02')").run();
+  });
+
+  await t.test('/refresh_coupon command - non-admin access', async () => {
+    process.env.ADMIN_TELEGRAM_IDS = '99999999';
+    const ctx = createMockCtx(testChatId);
+    await refreshCouponCmd(ctx);
+
+    assert.strictEqual(ctx.replies.length, 1);
+    assert.ok(ctx.replies[0].text.includes('réservée aux administrateurs'));
+  });
+
+  await t.test('/refresh_coupon command - admin success', async (t) => {
+    process.env.ADMIN_TELEGRAM_IDS = testChatId;
+    
+    const pipeline = require('../src/services/pipeline');
+    t.mock.method(pipeline, 'runFootballPipeline', async (date) => {
+      return { coupon: 'New generated coupon', matches: [] };
+    });
+
+    const ctx = createMockCtx(testChatId);
+    await refreshCouponCmd(ctx);
+
+    assert.strictEqual(ctx.replies.length, 2);
+    assert.ok(ctx.replies[0].text.includes('Régénération'));
+    assert.ok(ctx.replies[1].text.includes('généré et diffusé avec succès'));
   });
 
   cleanDb();

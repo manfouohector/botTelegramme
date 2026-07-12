@@ -39,7 +39,10 @@ function initBot() {
 
 
   // Text message handler – respond only to tech‑related content
-  bot.on('text', async (ctx) => {
+  bot.on('text', async (ctx, next) => {
+    if (ctx.message.text && ctx.message.text.startsWith('/')) {
+      return next();
+    }
     const text = (ctx.message.text || '').toLowerCase();
     const isTech = TECH_KEYWORDS.some(kw => text.includes(kw));
     if (isTech) {
