@@ -1,0 +1,33 @@
+{
+  "name": "telegram-sport-tech-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for football predictions and tech news",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "football",
+    "predictions",
+    "tech",
+    "news",
+    "groq",
+    "gemini"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.11.0",
+    "groq-sdk": "^0.3.3",
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0",
+    "telegraf": "^4.16.3"
+  }
+}
