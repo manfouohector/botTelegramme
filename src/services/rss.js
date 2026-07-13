@@ -52,12 +52,17 @@ class RssService {
         console.log(`📡 Lecture du flux RSS: ${feed.name} (${feed.url})`);
         const feedData = await this.parser.parseURL(feed.url);
         if (feedData && feedData.items) {
-          console.log(`${feedData.items.length} articles reçus de ${feed.name}`);
-          for (const item of feedData.items) {
+          // Limit to 5 most recent articles per feed to avoid token overflow
+          const limitedItems = feedData.items.slice(0, 5);
+          console.log(`${feedData.items.length} articles reçus de ${feed.name} (limité à ${limitedItems.length})`);
+          for (const item of limitedItems) {
+            // Truncate content to 200 chars to stay within Groq token limits
+            const rawContent = item.contentSnippet || item.content || '';
+            const trimmedContent = rawContent.length > 200 ? rawContent.substring(0, 200) + '...' : rawContent;
             allItems.push({
               source: feed.name,
               title: item.title,
-              content: item.contentSnippet || item.content || '',
+              content: trimmedContent,
               link: item.link,
               pubDate: item.pubDate || item.isoDate || ''
             });
@@ -104,8 +109,8 @@ class RssService {
       }
     }
 
-    // 6️⃣ Return up to 30 most recent fresh items
-    return fresh.slice(0, 30);
+    // 6️⃣ Return up to 15 most recent fresh items (keeps Groq token usage low)
+    return fresh.slice(0, 15);
   }
 }
 
