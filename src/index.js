@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const { initDatabase } = require('./db/database');
 const { initBot } = require('./bot');
-const { initScheduler } = require('./services/scheduler');
+const { initScheduler, checkAndGenerateMissing } = require('./services/scheduler');
 const { createServer } = require('./server');
 
 async function main() {
@@ -26,6 +26,9 @@ async function main() {
 
     // 3. Initialiser le planificateur de tâches (cron)
     initScheduler();
+    checkAndGenerateMissing().catch(err => {
+      console.error("[STARTUP] Échec de la vérification initiale des tâches manquantes:", err.message);
+    });
 
     // 4. Démarrer le serveur Express
     const app = createServer();

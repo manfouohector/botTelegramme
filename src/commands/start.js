@@ -31,7 +31,6 @@ Je suis votre assistant tech quotidien, propulsé par IA (Gemini + Groq).
 🔒 *Commandes admin :*
 ━━━━━━━━━━━━━━━━━━━━
 /status — État du bot (SQLite, Cron, Webhook)
-/refresh\\_coupon — Régénérer manuellement le coupon
 
 ━━━━━━━━━━━━━━━━━━━━
 💡 *Astuce :* Envoyez simplement votre question technique en message direct, je répondrai avec l'aide de Gemini & Groq !

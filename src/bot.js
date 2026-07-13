@@ -32,7 +32,6 @@ function initBot() {
   // New admin‑only commands
   bot.command('status', require('./commands/status'));
   bot.command('historique', require('./commands/historique'));
-  bot.command('refresh_coupon', require('./commands/refresh_coupon'));
 
 
   // Text message handler – call Gemini first, then Groq as fallback

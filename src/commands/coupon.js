@@ -8,14 +8,27 @@ function getLocalDateString() {
   return `${year}-${month}-${day}`;
 }
 
+const { runFootballPipeline } = require('../services/pipeline');
+
 module.exports = async (ctx) => {
   const todayStr = getLocalDateString();
   
   try {
-    const coupon = db.getCoupon(todayStr);
+    let coupon = db.getCoupon(todayStr);
     
     if (!coupon || !coupon.contenu) {
-      return ctx.reply("Le coupon du jour n'est pas encore prêt, réessaie après 8h.");
+      // Get current hour in UTC+1
+      const hourUTC1 = (new Date().getUTCHours() + 1) % 24;
+      if (hourUTC1 >= 8) {
+        await ctx.reply("🔄 Le coupon du jour n'est pas encore prêt. Lancement de la génération automatique (cela prend environ 30 secondes), veuillez patienter...");
+        const result = await runFootballPipeline(todayStr);
+        if (result && result.error) {
+          return ctx.reply("❌ Une erreur est survenue lors de la génération automatique du coupon. Veuillez réessayer dans quelques instants.");
+        }
+        coupon = db.getCoupon(todayStr);
+      } else {
+        return ctx.reply("Le coupon du jour n'est pas encore prêt, réessaie après 8h00.");
+      }
     }
     
     let couponText = coupon.contenu;

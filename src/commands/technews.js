@@ -8,14 +8,27 @@ function getLocalDateString() {
   return `${year}-${month}-${day}`;
 }
 
+const { runTechNewsPipeline } = require('../services/pipeline');
+
 module.exports = async (ctx) => {
   const todayStr = getLocalDateString();
   
   try {
-    const news = db.getTechNews(todayStr);
+    let news = db.getTechNews(todayStr);
     
     if (!news || !news.contenu) {
-      return ctx.reply("L'actualité tech d'aujourd'hui n'est pas encore prête, réessaie après 9h.");
+      // Get current hour in UTC+1
+      const hourUTC1 = (new Date().getUTCHours() + 1) % 24;
+      if (hourUTC1 >= 9) {
+        await ctx.reply("🔄 L'actualité tech d'aujourd'hui n'est pas encore prête. Lancement de la génération automatique (cela prend environ 30 secondes), veuillez patienter...");
+        const result = await runTechNewsPipeline(todayStr);
+        if (result && result.error) {
+          return ctx.reply("❌ Une erreur est survenue lors de la génération automatique des actualités. Veuillez réessayer dans quelques instants.");
+        }
+        news = db.getTechNews(todayStr);
+      } else {
+        return ctx.reply("L'actualité tech d'aujourd'hui n'est pas encore prête, réessaie après 9h00.");
+      }
     }
     
     let articles = [];
