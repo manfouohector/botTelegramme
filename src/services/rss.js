@@ -81,7 +81,7 @@ class RssService {
 
     // 3️⃣ Load recent history (last 7 days) to filter duplicates
     const recent = db.getDb()
-      .prepare('SELECT title, link FROM technews_history WHERE date >= date("now", "-7 days")')
+      .prepare('SELECT title, link FROM technews_history WHERE date >= date(\'now\', \'-7 days\')')
       .all();
     const seen = new Set(recent.map(r => `${r.title}@@${r.link}`));
 
