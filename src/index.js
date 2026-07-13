@@ -17,9 +17,6 @@ async function main() {
     const bot = initBot();
     if (bot) {
       console.log('🤖 Bot initialisé en mode Webhook (les requêtes passeront par Express)');
-      // Gérer l'arrêt propre
-      process.once('SIGINT', () => bot.stop('SIGINT'));
-      process.once('SIGTERM', () => bot.stop('SIGTERM'));
     } else {
       console.warn("⚠️ Le Bot Telegram n'a pas été lancé (TELEGRAM_BOT_TOKEN manquant).");
     }

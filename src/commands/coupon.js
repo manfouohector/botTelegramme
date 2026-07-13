@@ -19,7 +19,7 @@ module.exports = async (ctx) => {
     if (!coupon || !coupon.contenu) {
       // Get current hour in UTC+1
       const hourUTC1 = (new Date().getUTCHours() + 1) % 24;
-      if (hourUTC1 >= 8) {
+      if (hourUTC1 >= 8 && process.env.NODE_ENV !== 'test') {
         await ctx.reply("🔄 Le coupon du jour n'est pas encore prêt. Lancement de la génération automatique (cela prend environ 30 secondes), veuillez patienter...");
         const result = await runFootballPipeline(todayStr);
         if (result && result.error) {

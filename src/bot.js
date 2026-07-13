@@ -10,17 +10,27 @@ const ADMIN_IDS = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(id => pa
 let bot = null;
 
 function initBot() {
+  if (bot) return bot;
+  
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) {
-    console.warn("Warning: TELEGRAM_BOT_TOKEN n'est pas configuré. Le bot ne démarrera pas.");
+    console.error("❌ Error: TELEGRAM_BOT_TOKEN is not configured. The bot will not start.");
     return null;
   }
   
   bot = new Telegraf(token);
+  
   // Configure webhook for Render deployment
   const webhookUrl = process.env.WEBHOOK_URL || 'https://bottelegramme.onrender.com/bot';
-  bot.telegram.setWebhook(webhookUrl);
-  console.log(`🔗 Webhook configuré : ${webhookUrl}`);
+  
+  bot.telegram.setWebhook(webhookUrl)
+    .then(() => {
+      console.log(`🔗 Webhook configuré avec succès : ${webhookUrl}`);
+    })
+    .catch(error => {
+      console.error(`❌ Diagnostic: Échec de configuration du Webhook (${webhookUrl}):`, error.message);
+      console.error(`Veuillez vérifier votre token ou la connexion à api.telegram.org. Le bot Express continuera à tourner.`);
+    });
 
   // Register commands
   // Register commands
@@ -92,7 +102,12 @@ function initBot() {
  */
 async function broadcast(text) {
   if (!bot) {
-    console.warn("[BROADCAST] Le bot n'est pas initialisé ou en cours d'exécution. Impossible de diffuser.");
+    console.warn("[BROADCAST] [WARN] Le bot n'est pas initialisé ou en cours d'exécution. Tentative d'initialisation...");
+    initBot();
+  }
+  
+  if (!bot) {
+    console.warn("[BROADCAST] [WARN] Impossible d'initialiser le bot (token manquant). La diffusion est ignorée.");
     return;
   }
 
