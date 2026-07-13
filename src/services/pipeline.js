@@ -165,17 +165,8 @@ async function runTechNewsPipeline(dateStr) {
  * @param {string} text Message content
  */
 async function broadcastMessage(text) {
-  try {
-    // Dynamic require to avoid circular dependencies with bot.js
-    const botModule = require('../bot');
-    if (botModule && typeof botModule.broadcast === 'function') {
-      await botModule.broadcast(text);
-    } else {
-      console.log('[PIPELINE] Le bot Telegram n\'est pas encore démarré ou n\'a pas de fonction de broadcast.');
-    }
-  } catch (error) {
-    console.error('[PIPELINE] Erreur lors de la diffusion du message:', error.message);
-  }
+  // La diffusion automatique a été désactivée à la demande de l'utilisateur.
+  console.log("[PIPELINE] [INFO] La diffusion automatique (Push) est désactivée. Le message n'est pas envoyé aux abonnés.");
 }
 
 module.exports = {

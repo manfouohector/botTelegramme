@@ -5,12 +5,10 @@ const DEFAULT_FEEDS = [
   { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
   { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
   { name: 'Ars Technica', url: 'https://feeds.arstechnica.com/arstechnica/index' },
-  // ── Sources locales Cameroun / Afrique tech ──────────────────────────────
-  { name: 'CamerounInfo (Tech)', url: 'https://www.camerouninfo.net/index.php?option=com_content&view=category&id=51&format=feed&type=rss' },
-  { name: 'Cameroon-Info.Net', url: 'https://www.cameroon-info.net/rss/categorie/61/informatique.xml' },
-  { name: '237online', url: 'https://www.237online.com/category/tech-et-innovation/feed/' },
-  { name: 'TechAfrica', url: 'https://techafrique.com/feed/' },
-  { name: 'Afrik21 (Numérique)', url: 'https://www.afrik21.africa/category/nouvelles-technologies/feed/' }
+  // ── Sources locales Cameroun / Afrique tech (Actifs et Fonctionnels) ─────
+  { name: 'Investir au Cameroun (TIC)', url: 'https://www.investiraucameroun.com/tic/feed' },
+  { name: 'Digital Business Africa', url: 'https://www.digitalbusiness.africa/feed/' },
+  { name: 'AITN (Afrique Innovation Tech)', url: 'https://aitn.africa/feed/' }
 ];
 
 class RssService {
