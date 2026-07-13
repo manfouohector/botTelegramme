@@ -11,8 +11,6 @@ const INTERNATIONAL_FEEDS = [
   { name: 'Hacker News', url: 'https://hnrss.org/frontpage' },
   { name: 'Dev.to', url: 'https://dev.to/feed' },
   { name: 'Node.js Blog', url: 'https://nodejs.org/en/feed/blog.xml' },
-  { name: 'Python Software Foundation', url: 'https://feeds.feedburner.com/pythonsoftwarefoundation' },
-  { name: 'PostgreSQL News', url: 'https://www.postgresql.org/rss/news.rss' },
   { name: 'Docker Blog', url: 'https://www.docker.com/feed' },
   { name: 'Rust Blog', url: 'https://blog.rust-lang.org/feed.xml' },
   { name: 'SQL Server Blog', url: 'https://feeds.feedburner.com/SQLServer' }
@@ -21,8 +19,7 @@ const INTERNATIONAL_FEEDS = [
 // Local / African tech sources (currently functional)
 const LOCAL_FEEDS = [
   { name: 'Investir au Cameroun (TIC)', url: 'https://www.investiraucameroun.com/tic/feed' },
-  { name: 'Digital Business Africa', url: 'https://www.digitalbusiness.africa/feed/' },
-  { name: 'AITN (Afrique Innovation Tech)', url: 'https://aitn.africa/feed/' }
+  { name: 'Digital Business Africa', url: 'https://www.digitalbusiness.africa/feed/' }
 ];
 
 // Merge both arrays – order does not matter for deduplication
@@ -94,10 +91,17 @@ class RssService {
         'INSERT OR IGNORE INTO technews_history (date, title, link, source) VALUES (?, ?, ?, ?)'
       );
       const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-      const tx = db.getDb().transaction(() => {
-        fresh.forEach(it => insertStmt.run(today, it.title, it.link, it.source));
-      });
-      tx();
+      // node:sqlite (DatabaseSync) does not support .transaction(), so we insert one by one
+      for (const it of fresh) {
+        try {
+          insertStmt.run(today, it.title, it.link, it.source);
+        } catch (e) {
+          // INSERT OR IGNORE handles duplicates; log any other error
+          if (!e.message.includes('UNIQUE constraint')) {
+            console.error(`⚠️ Erreur d'insertion dans technews_history: ${e.message}`);
+          }
+        }
+      }
     }
 
     // 6️⃣ Return up to 30 most recent fresh items
