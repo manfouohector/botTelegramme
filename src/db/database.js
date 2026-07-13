@@ -32,10 +32,13 @@ function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
-      CREATE TABLE IF NOT EXISTS subscribers (
-        chat_id TEXT PRIMARY KEY,
-        type TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      CREATE TABLE IF NOT EXISTS technews_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        title TEXT NOT NULL,
+        link TEXT NOT NULL,
+        source TEXT,
+        UNIQUE(title, link)
       );
     `);
 
