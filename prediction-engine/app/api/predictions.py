@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
 from loguru import logger
 from app.models.ensemble_model import ensemble_model
+from app.llm_service.llm_client import llm_service
 
 router = APIRouter(prefix="/predict", tags=["Predictions"])
 
@@ -16,6 +17,7 @@ class PredictionResponse(BaseModel):
     match_id: str
     model_version: str
     probabilities: Dict[str, float]
+    llm_explanation: Optional[str] = None
 
 @router.post("/", response_model=PredictionResponse)
 async def predict_match(request: PredictionRequest):
@@ -33,10 +35,15 @@ async def predict_match(request: PredictionRequest):
             match_data=request.match_data
         )
         
+        # Générer l'explication avec Groq/LLM
+        match_str = f"Match ID {request.match_id}"
+        explanation = llm_service.generate_explanation(match_str, probs)
+        
         return PredictionResponse(
             match_id=request.match_id,
             model_version=ensemble_model.version,
-            probabilities=probs
+            probabilities=probs,
+            llm_explanation=explanation
         )
         
     except Exception as e:

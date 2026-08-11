@@ -6,6 +6,7 @@ const cron = require('node-cron');
 const { collectDailyData } = require('../collectors/dataCollector');
 const { getPredictionForMatch } = require('../services/predictionService');
 const { publishFreeCoupon, publishPremiumCoupon } = require('../services/publisherService');
+const { extractOdds } = require('../utils/oddsParser');
 const logger = require('../utils/logger');
 
 function initCronJobs() {
@@ -47,8 +48,8 @@ function initCronJobs() {
             home_team_name: match.home_team_name || 'Home',
             away_team_name: match.away_team_name || 'Away',
             outcome_predicted: bestMarket,
-            cote_marche: 1.80, // Simulation de cote MVP
-            llm_explanation: "L'IA détecte un fort avantage statistique sur ce pari."
+            cote_marche: extractOdds(match.odds, bestMarket) || 1.80, // Si API absente, fallback à 1.80
+            llm_explanation: predResult.llm_explanation || "Analyse IA non disponible."
           });
         }
       }
