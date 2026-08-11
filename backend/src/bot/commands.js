@@ -30,12 +30,17 @@ function registerCommands(bot) {
 
   // Commande /premium
   bot.command('premium', (ctx) => {
+    const price = process.env.SUBSCRIPTION_PRICE_FCFA || '2500';
+    const duration = process.env.SUBSCRIPTION_DURATION_DAYS || '30';
+    const provider = process.env.MOBILE_MONEY_PROVIDER || 'Mobile Money';
+    const waNumber = process.env.WHATSAPP_NUMBER || '237XXXXXXXX';
+    
     ctx.reply(
       "💎 **Canal Premium DevMind**\n\n" +
-      "Abonnement : 2500 FCFA / mois\n" +
-      "Paiement par Mobile Money (Wave, Orange, MTN, etc.)\n\n" +
+      `Abonnement : ${price} FCFA / ${duration} jours\n` +
+      `Paiement par : ${provider}\n\n` +
       "👉 Pour vous abonner, contactez l'admin sur WhatsApp :\n" +
-      "https://wa.me/237XXXXXXXX" // TODO: remplacer par le vrai numéro
+      `https://wa.me/${waNumber}`
     );
   });
 
