@@ -12,7 +12,14 @@ const logger = require('../utils/logger');
 function initCronJobs() {
   // Tourne tous les jours à 01:00 AM
   cron.schedule('0 1 * * *', async () => {
-    logger.info('[CRON] ⏰ Démarrage de la tâche quotidienne de collecte des matchs');
+    logger.info('[CRON] ⏰ Démarrage de la tâche quotidienne de collecte et publication des coupons');
+    try {
+      const { generateAndPublishToday } = require('../services/publisherService');
+      await generateAndPublishToday();
+      logger.info('[CRON] ✅ Publication des coupons terminée.');
+    } catch (err) {
+      logger.error(`[CRON] Erreur lors de la génération/publishing : ${err.message}`);
+    }
     try {
       const result = await collectDailyData();
       

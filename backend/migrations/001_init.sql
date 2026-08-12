@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS leagues (
   external_id  INTEGER     NOT NULL UNIQUE, -- ID API-Football
   name         VARCHAR(100) NOT NULL,
   country      VARCHAR(100),
-  season       INTEGER      NOT NULL DEFAULT 2026,
+  season       INTEGER      NOT NULL DEFAULT 2024,
   covered      BOOLEAN      DEFAULT FALSE,   -- TRUE = couvert en V1
   logo_url     VARCHAR(500),
   created_at   TIMESTAMPTZ  DEFAULT NOW(),
@@ -62,13 +62,13 @@ CREATE TABLE IF NOT EXISTS leagues (
 
 -- Seed championnats V1 couverts (IDs API-Football)
 INSERT INTO leagues (external_id, name, country, season, covered) VALUES
-  (61,  'Ligue 1',            'France',      2026, TRUE),
-  (39,  'Premier League',     'England',     2026, TRUE),
-  (140, 'La Liga',            'Spain',       2026, TRUE),
-  (135, 'Serie A',            'Italy',       2026, TRUE),
-  (78,  'Bundesliga',         'Germany',     2026, TRUE),
-  (2,   'UEFA Champions League', 'Europe',  2026, TRUE),
-  (531, 'UEFA Super Cup',     'Europe',      2026, TRUE)
+  (61,  'Ligue 1',            'France',      2024, TRUE),
+  (39,  'Premier League',     'England',     2024, TRUE),
+  (140, 'La Liga',            'Spain',       2024, TRUE),
+  (135, 'Serie A',            'Italy',       2024, TRUE),
+  (78,  'Bundesliga',         'Germany',     2024, TRUE),
+  (2,   'UEFA Champions League', 'Europe',  2024, TRUE),
+  (531, 'UEFA Super Cup',     'Europe',      2024, TRUE)
 ON CONFLICT (external_id) DO NOTHING;
 
 -- =============================================================================

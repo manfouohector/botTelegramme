@@ -80,6 +80,52 @@ function registerCommands(bot) {
     }
   });
 
+  // --------------------------
+  // ADMIN COMMAND: /couponstatus – Affiche l'état du coupon du jour
+  // --------------------------
+  bot.command('couponstatus', async (ctx) => {
+    const telegramId = ctx.from.id;
+    if (telegramId !== ADMIN_ID && ADMIN_ID !== 0) {
+      return ctx.reply('⛔ Non autorisé.');
+    }
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await pool.query('SELECT id, type, predictions FROM coupons WHERE date = $1', [today]);
+      if (res.rowCount === 0) {
+        return ctx.reply('🗓 Aucun coupon publié aujourd\'hui.');
+      }
+      let msg = `📊 Coupons du ${today}:\n`;
+      res.rows.forEach((c) => {
+        const preds = JSON.parse(c.predictions);
+        const count = preds.length;
+        const oddsInfo = preds.map(p => `${p.cote_marche || 'N/A'}`).join(', ');
+        msg += `- ${c.type.toUpperCase()} (ID ${c.id}) – ${count} sélection(s) – Cotes: ${oddsInfo}\n`;
+      });
+      ctx.reply(msg);
+    } catch (err) {
+      logger.error(`[TelegramBot] Erreur /couponstatus: ${err.message}`);
+      ctx.reply('❌ Erreur lors de la récupération des coupons.');
+    }
+  });
+
+  // --------------------------
+  // ADMIN COMMAND: /gencoupon – Génère le coupon du jour manuellement
+  // --------------------------
+  const { generateAndPublishToday } = require('../services/publisherService');
+  bot.command('gencoupon', async (ctx) => {
+    const telegramId = ctx.from.id;
+    if (telegramId !== ADMIN_ID && ADMIN_ID !== 0) {
+      return ctx.reply('⛔ Non autorisé.');
+    }
+    try {
+      await generateAndPublishToday();
+      ctx.reply('✅ Coupon du jour généré et publié avec succès.');
+    } catch (err) {
+      logger.error(`[TelegramBot] Erreur /gencoupon: ${err.message}`);
+      ctx.reply('❌ Erreur lors de la génération du coupon.');
+    }
+  });
+
 }
 
 module.exports = { registerCommands };

@@ -85,7 +85,13 @@ async function getFixturesToday(date = null) {
   const leagueIds = Object.keys(COVERED_LEAGUES);
   const allFixtures = [];
 
-  const season = parseInt(process.env.API_FOOTBALL_SEASON || new Date().getFullYear().toString(), 10);
+  // ⚠️ Plan gratuit API-Football : accès limité aux saisons 2022-2024
+  // À mettre à jour vers new Date().getFullYear() après upgrade du plan !
+  // Saison football‑football‑org : si le mois >= July (7) on utilise l'année courante,
+  // sinon on prend l'année précédente (ex. jan‑jun 2026 → saison 2025/2026).
+  const now = new Date();
+  const month = now.getMonth() + 1; // getMonth() renvoie 0‑11
+  const season = month >= 7 ? now.getFullYear() : now.getFullYear() - 1;
 
   logger.info(`[API-Football] Récupération des matchs pour le ${targetDate} — saison ${season} (${leagueIds.length} ligues)`);
 
@@ -162,10 +168,10 @@ async function getFixtureOdds(fixtureId) {
  * Récupère les statistiques de forme d'une équipe (derniers matchs).
  * @param {number} teamId - ID de l'équipe
  * @param {number} leagueId - ID de la ligue
- * @param {number} season - Saison (ex: 2026)
+ * @param {number} season - Saison (ex: 2024)
  * @param {number} last - Nombre de derniers matchs (défaut: 5)
  */
-async function getTeamForm(teamId, leagueId, season = 2026, last = 5) {
+async function getTeamForm(teamId, leagueId, season = 2024, last = 5) {
   logger.debug(`[API-Football] Forme équipe ${teamId} (${last} derniers matchs)`);
   return apiGet('/fixtures', {
     team: teamId,

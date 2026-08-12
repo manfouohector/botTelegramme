@@ -19,7 +19,7 @@ const {
   getFixtureInjuries,
   getFixtureOdds,
 } = require('./apiFootballClient');
-const { getMatchesFallback } = require('./footballDataClient');
+const { getMatches } = require('./footballDataClient');
 const {
   getCachedMatch,
   upsertMatchFromApiFootball,
@@ -58,20 +58,25 @@ async function collectDailyData(date = null) {
     return await collectViaFallback(targetDate);
   }
 
-  // --- Étape 2 : Récupération des fixtures via API-Football ---
+  // --- Étape 2 : Récupération des matchs via football-data.org (source principale) ---
   let fixtures = [];
-  let usedApiFootball = true;
+  let usedApiFootball = false;
 
   try {
-    fixtures = await getFixturesToday(targetDate);
-  } catch (err) {
-    if (err.code === 'QUOTA_EXHAUSTED') {
-      logger.warn('[DataCollector] Quota épuisé pendant la récupération — passage en fallback');
-      return await collectViaFallback(targetDate);
+    fixtures = await getMatches(targetDate);
+    if (fixtures.length > 0) {
+      logger.info(`[DataCollector] ✅ ${fixtures.length} match(s) trouvé(s) via football-data.org`);
+    } else {
+      logger.info('[DataCollector] Aucun match trouvé via football-data.org – passage au fallback API-Football');
+      // fallback to API-Football for historical/season out of range
+      fixtures = await getFixturesToday(targetDate);
+      usedApiFootball = true;
     }
-    logger.error(`[DataCollector] Erreur API-Football : ${err.message} — tentative fallback`);
-    usedApiFootball = false;
-    return await collectViaFallback(targetDate);
+  } catch (err) {
+    logger.error(`[DataCollector] Erreur football-data.org : ${err.message} – passage en fallback API-Football`);
+    // fallback to API-Football (could be quota issue or network)
+    fixtures = await getFixturesToday(targetDate);
+    usedApiFootball = true;
   }
 
   // --- Étape 3 : Aucun match aujourd'hui (comportement normal) ---
@@ -193,11 +198,11 @@ async function collectViaFallback(date) {
   logger.info(`[DataCollector] 🔄 Mode fallback football-data.org pour le ${date}`);
 
   try {
-    const matches = await getMatchesFallback(date);
+    const matches = await getFixturesToday(date);
 
     if (matches.length === 0) {
-      logger.info('[DataCollector] ℹ️  Aucun match via fallback');
-      return { matches: [], quota: await getQuotaStatus(), source: 'football_data', noMatchDay: true };
+      logger.info('[DataCollector] ℹ️  Aucun match via fallback API-Football');
+      return { matches: [], quota: await getQuotaStatus(), source: 'api_football', noMatchDay: true };
     }
 
     const saved = [];
@@ -216,7 +221,7 @@ async function collectViaFallback(date) {
     return {
       matches: matchesForEngine,
       quota: await getQuotaStatus(),
-      source: 'football_data',
+      source: 'api_football',
       noMatchDay: saved.length === 0,
     };
   } catch (err) {
