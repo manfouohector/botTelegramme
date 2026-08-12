@@ -90,7 +90,7 @@ function registerCommands(bot) {
     }
     try {
       const today = new Date().toISOString().slice(0, 10);
-      const res = await pool.query('SELECT id, type, predictions FROM coupons WHERE DATE(created_at) = $1', [today]);
+      const res = await pool.query('SELECT id, type, predictions FROM coupons WHERE created_at::date = $1', [today]);
       if (res.rowCount === 0) {
         return ctx.reply('🗓 Aucun coupon publié aujourd\'hui.');
       }

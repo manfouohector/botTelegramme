@@ -13,6 +13,7 @@
 const logger = require('../utils/logger');
 const { canMakeRequests, getQuotaStatus } = require('./quotaTracker');
 const {
+  getFixturesToday,
   getFixtureStatistics,
   getFixtureLineups,
   getFixtureInjuries,
@@ -59,17 +60,21 @@ async function collectDailyData(date = null) {
 
   // --- Étape 2 : Récupération des matchs via football-data.org (source principale) ---
   let fixtures = [];
+  let usedApiFootball = false;
 
   try {
     fixtures = await getMatches(targetDate);
     if (fixtures.length > 0) {
       logger.info(`[DataCollector] ✅ ${fixtures.length} match(s) trouvé(s) via football-data.org`);
     } else {
-      logger.info('[DataCollector] Aucun match trouvé via football-data.org – aucune collecte supplémentaire');
+      logger.info('[DataCollector] Aucun match trouvé via football-data.org – passage au fallback API-Football');
+      fixtures = await getFixturesToday(targetDate);
+      usedApiFootball = true;
     }
   } catch (err) {
-    logger.error(`[DataCollector] Erreur football-data.org : ${err.message}`);
-    // No fallback; continue with empty fixtures
+    logger.error(`[DataCollector] Erreur football-data.org : ${err.message} – passage en fallback API-Football`);
+    fixtures = await getFixturesToday(targetDate);
+    usedApiFootball = true;
   }
 
   // --- Étape 3 : Aucun match aujourd'hui (comportement normal) ---
