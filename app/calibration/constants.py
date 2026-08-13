@@ -1,0 +1,9 @@
+"""Constantes calibration."""
+
+CALIBRATOR_PLATT = "PLATT"
+CALIBRATOR_ISOTONIC = "ISOTONIC"
+CALIBRATOR_NONE = "NONE"
+
+CALIBRATION_VERSION = "1.0.0"
+
+DEFAULT_ARTIFACT_DIR = "models/calibration"

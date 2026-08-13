@@ -1,0 +1,3 @@
+"""Constantes Bot Telegram."""
+
+BOT_VERSION = "1.0.0"

@@ -1,0 +1,132 @@
+{
+  "data": [
+    {
+      "id": 19146700,
+      "sport_id": 1,
+      "league_id": 501,
+      "season_id": 23690,
+      "stage_id": 77471570,
+      "group_id": null,
+      "aggregate_id": null,
+      "round_id": 340573,
+      "state_id": 1,
+      "venue_id": 8879,
+      "name": "St. Mirren vs Hibernian",
+      "starting_at": "2026-08-13 14:00:00",
+      "result_info": null,
+      "leg": "1/1",
+      "details": null,
+      "length": 90,
+      "placeholder": false,
+      "has_odds": true,
+      "starting_at_timestamp": 1786706400,
+      "participants": [
+        {
+          "id": 180,
+          "sport_id": 1,
+          "country_id": 1161,
+          "venue_id": 8879,
+          "gender": "male",
+          "name": "St. Mirren",
+          "short_code": "STM",
+          "meta": { "location": "home" }
+        },
+        {
+          "id": 65,
+          "sport_id": 1,
+          "country_id": 1161,
+          "venue_id": 8906,
+          "gender": "male",
+          "name": "Hibernian",
+          "short_code": "HIB",
+          "meta": { "location": "away" }
+        }
+      ],
+      "league": {
+        "id": 501,
+        "sport_id": 1,
+        "country_id": 1161,
+        "name": "Premiership",
+        "short_code": "SCO-P",
+        "country": { "name": "Scotland" }
+      },
+      "season": {
+        "id": 23690,
+        "sport_id": 1,
+        "league_id": 501,
+        "name": "2025/2026",
+        "is_current": true
+      },
+      "scores": [],
+      "statistics": [
+        {
+          "id": 1,
+          "fixture_id": 19146700,
+          "type_id": 42,
+          "participant_id": 180,
+          "data": { "value": 55 },
+          "location": "home"
+        },
+        {
+          "id": 2,
+          "fixture_id": 19146700,
+          "type_id": 42,
+          "participant_id": 65,
+          "data": { "value": 45 },
+          "location": "away"
+        }
+      ]
+    },
+    {
+      "id": 19146799,
+      "sport_id": 1,
+      "league_id": 999,
+      "season_id": 23690,
+      "state_id": 1,
+      "name": "Placeholder Cup Tie",
+      "starting_at": "2026-08-13 17:00:00",
+      "placeholder": true,
+      "participants": [
+        { "id": 1, "name": "TBD 1", "meta": { "location": "home" } },
+        { "id": 2, "name": "TBD 2", "meta": { "location": "away" } }
+      ],
+      "league": { "id": 999, "name": "Cup" },
+      "season": { "id": 23690, "name": "2025/2026" }
+    },
+    {
+      "id": 19146800,
+      "sport_id": 1,
+      "league_id": 501,
+      "season_id": 23690,
+      "state_id": 5,
+      "name": "Celtic vs Rangers",
+      "starting_at": "2026-08-12 15:30:00",
+      "placeholder": false,
+      "participants": [
+        { "id": 53, "name": "Celtic", "short_code": "CEL", "meta": { "location": "home" } },
+        { "id": 62, "name": "Rangers", "short_code": "RAN", "meta": { "location": "away" } }
+      ],
+      "league": { "id": 501, "name": "Premiership", "country": { "name": "Scotland" } },
+      "season": { "id": 23690, "name": "2025/2026" },
+      "scores": [
+        {
+          "description": "CURRENT",
+          "participant_id": 53,
+          "score": { "goals": 2, "participant": "home" }
+        },
+        {
+          "description": "CURRENT",
+          "participant_id": 62,
+          "score": { "goals": 1, "participant": "away" }
+        }
+      ],
+      "statistics": []
+    }
+  ],
+  "pagination": {
+    "count": 3,
+    "per_page": 50,
+    "current_page": 1,
+    "has_more": false
+  }
+}

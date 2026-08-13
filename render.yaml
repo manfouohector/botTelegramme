@@ -1,0 +1,101 @@
+# Blueprint Render — Football Prediction Bot MVP
+# Docs : https://render.com/docs/blueprint-spec
+
+databases:
+  - name: football-bot-db
+    plan: free
+    databaseName: football_bot
+    user: football_bot
+
+services:
+  # Service web : health check + webhook Telegram
+  - type: web
+    name: football-bot-web
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: python scripts/run_migrations.py
+    startCommand: python scripts/run_web.py
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: TELEGRAM_BOT_MODE
+        value: webhook
+      - key: TELEGRAM_WEBHOOK_PATH
+        value: telegram
+      - key: SCHEDULER_ENABLE
+        value: false
+      - key: PUBLICATION_ENABLE
+        value: true
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: football-bot-db
+          property: connectionString
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK_URL
+        sync: false
+      - key: TELEGRAM_FREE_CHANNEL_ID
+        sync: false
+      - key: TELEGRAM_PREMIUM_GROUP_ID
+        sync: false
+      - key: ADMIN_TELEGRAM_ID
+        sync: false
+      - key: SPORTMONKS_API_TOKEN
+        sync: false
+      - key: SPORTMONKS_LEAGUE_IDS
+        sync: false
+      - key: ODDS_API_KEY
+        sync: false
+      - key: ODDS_API_SPORT_KEYS
+        sync: false
+      - key: TIMEZONE
+        value: Africa/Douala
+
+  # Worker : scheduler APScheduler (cron interne)
+  - type: worker
+    name: football-bot-scheduler
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/run_scheduler.py
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SCHEDULER_ENABLE
+        value: true
+      - key: PUBLICATION_ENABLE
+        value: true
+      - key: TELEGRAM_BOT_MODE
+        value: polling
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: football-bot-db
+          property: connectionString
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_FREE_CHANNEL_ID
+        sync: false
+      - key: TELEGRAM_PREMIUM_GROUP_ID
+        sync: false
+      - key: ADMIN_TELEGRAM_ID
+        sync: false
+      - key: SPORTMONKS_API_TOKEN
+        sync: false
+      - key: SPORTMONKS_LEAGUE_IDS
+        sync: false
+      - key: ODDS_API_KEY
+        sync: false
+      - key: ODDS_API_SPORT_KEYS
+        sync: false
+      - key: TIMEZONE
+        value: Africa/Douala

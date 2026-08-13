@@ -1,0 +1,21 @@
+"""Constantes Risk Engine."""
+
+SEVERITY_LOW = "LOW"
+SEVERITY_MEDIUM = "MEDIUM"
+SEVERITY_HIGH = "HIGH"
+
+# Facteurs de risque
+FACTOR_LOW_CONFIDENCE = "low_confidence"
+FACTOR_STALE_DATA = "stale_data"
+FACTOR_INCOMPLETE_DATA = "incomplete_data"
+FACTOR_LOW_DATA_QUALITY = "low_data_quality"
+FACTOR_NO_VALUE = "no_value"
+FACTOR_LOW_EDGE = "low_edge"
+FACTOR_EXTREME_EDGE = "extreme_edge"
+FACTOR_NO_ODDS = "no_odds"
+FACTOR_XG_UNAVAILABLE = "xg_unavailable"
+FACTOR_MODEL_DISAGREEMENT = "model_disagreement"
+FACTOR_HIGH_STAKES = "high_stakes"
+FACTOR_INJURIES_UNCONFIRMED = "injuries_missing"
+FACTOR_LINEUPS_MISSING = "lineups_missing"
+FACTOR_INSUFFICIENT_HISTORY = "insufficient_history"

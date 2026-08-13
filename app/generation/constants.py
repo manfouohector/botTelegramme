@@ -1,0 +1,16 @@
+"""Constantes génération quotidienne."""
+
+GENERATION_RUN_TYPE = "DAILY_GENERATION"
+
+PIPELINE_STAGES = (
+    "DATA_COLLECTION",
+    "ODDS_COLLECTION",
+    "PREDICTION",
+    "CALIBRATION",
+    "VALUE",
+    "RISK",
+    "COUPON_GENERATION",
+    "PUBLICATION",
+)
+
+GEN_META_PREFIX = "GEN_META|"
