@@ -41,6 +41,12 @@ class OddsCollector:
         if self._owns_client:
             self.client.close()
 
+    def __enter__(self) -> OddsCollector:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        self.close()
+
     def collect_for_sport(self, sport_key: str) -> dict:
         """Collecte et lie les cotes d'un sport aux matchs PostgreSQL."""
         if not self.settings.has_odds_api():

@@ -49,3 +49,24 @@ class TestOddsCollector:
         result = collector.collect_for_sport("soccer_france_ligue_one")
         assert result["linked"] == 1
         assert result["odds"] == 7
+
+    def test_context_manager_with_injected_client(self, db_session, settings):
+        mock_client = MagicMock()
+        mock_client.get_odds_for_sport.return_value = []
+        mock_client.request_count = 0
+
+        with OddsCollector(db_session, settings, client=mock_client) as collector:
+            collector.collect_for_sport("soccer_france_ligue_one")
+
+        mock_client.close.assert_not_called()
+
+    def test_context_manager_closes_owned_client(self, db_session, settings, monkeypatch):
+        mock_client = MagicMock()
+        mock_client.get_odds_for_sport.return_value = []
+        mock_client.request_count = 0
+        monkeypatch.setattr("app.value.odds_collector.OddsAPIClient", lambda _settings: mock_client)
+
+        with OddsCollector(db_session, settings) as collector:
+            collector.collect_for_sport("soccer_france_ligue_one")
+
+        mock_client.close.assert_called_once()
