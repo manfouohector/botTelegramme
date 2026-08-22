@@ -171,7 +171,7 @@ class PublicationService:
             message = await bot.send_message(
                 chat_id=chat_id,
                 text=text,
-                parse_mode=ParseMode.MARKDOWN,
+                parse_mode=ParseMode.HTML,
                 disable_web_page_preview=True,
             )
             self.coupons.publish_coupon(coupon.id)
@@ -215,7 +215,7 @@ class PublicationService:
             message = await bot.send_message(
                 chat_id=chat_id,
                 text=text,
-                parse_mode=ParseMode.MARKDOWN,
+                parse_mode=ParseMode.HTML,
             )
             self.coupons.cancel_coupon(
                 coupon_id,

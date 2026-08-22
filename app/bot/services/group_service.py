@@ -109,7 +109,7 @@ async def notify_subscription_expired(
                 "Vous avez été retiré du groupe Premium.\n\n"
                 "Pour renouveler : /premium"
             ),
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.HTML,
         )
         log_event(logger, "PREMIUM_EXPIRATION_NOTIFIED", telegram_id=telegram_id)
         return True

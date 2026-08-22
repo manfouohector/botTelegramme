@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+# pyrefly: ignore [missing-import]
 from telegram import Update
+# pyrefly: ignore [missing-import]
 from telegram.ext import Application, CommandHandler, ContextTypes
+# pyrefly: ignore [missing-import]
+from telegram.constants import ParseMode
 
 from app.bot.admin_messages import (
     format_daily_status,
@@ -69,7 +73,7 @@ async def activate_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         await message.reply_text(
             "**Usage :** `/activate <telegram_id>`\n\n"
             "Exemple : `/activate 123456789`",
-            parse_mode="Markdown",
+        parse_mode=ParseMode.HTML,
         )
         return
 
@@ -95,7 +99,7 @@ async def activate_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
             invite_ok=invite.success,
             invite_reason=invite.reason,
         ),
-        parse_mode="Markdown",
+        parse_mode=ParseMode.HTML,
     )
     log_event(logger, "BOT_ACTIVATE_SUCCESS", target_id=target_id, admin_id=user.id)
 
@@ -151,7 +155,7 @@ async def generate_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     else:
         text = format_generation_result(result)
 
-    await message.reply_text(text, parse_mode="Markdown")
+    await message.reply_text(text, parse_mode=ParseMode.HTML)
     log_event(
         logger,
         "BOT_GENERATE_SUCCESS",
@@ -181,7 +185,7 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     finally:
         session.close()
 
-    await message.reply_text(format_daily_status(status), parse_mode="Markdown")
+    await message.reply_text(format_daily_status(status), parse_mode=ParseMode.HTML)
     log_event(logger, "BOT_STATUS", admin_id=user.id)
 
 
@@ -203,7 +207,7 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if context.args and target_date is None:
         await message.reply_text(
             "**Usage :** `/history` ou `/history YYYY-MM-DD`",
-            parse_mode="Markdown",
+        parse_mode=ParseMode.HTML,
         )
         return
 
@@ -213,7 +217,7 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     finally:
         session.close()
 
-    await message.reply_text(format_history_summary(summary), parse_mode="Markdown")
+    await message.reply_text(format_history_summary(summary), parse_mode=ParseMode.HTML)
     log_event(logger, "BOT_HISTORY", admin_id=user.id, date=str(summary.target_date))
 
 

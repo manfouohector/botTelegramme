@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+# pyrefly: ignore [missing-import]
 from telegram import Message, Update
+# pyrefly: ignore [missing-import]
 from telegram.constants import ParseMode
+# pyrefly: ignore [missing-import]
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from app.bot.keyboards import free_keyboard, premium_keyboard, start_keyboard
@@ -32,7 +35,7 @@ async def _send_start(message: Message, context: ContextTypes.DEFAULT_TYPE) -> N
     await message.reply_text(
         start_message(settings),
         reply_markup=start_keyboard(settings),
-        parse_mode=ParseMode.MARKDOWN,
+        parse_mode=ParseMode.HTML,
     )
     log_event(logger, "BOT_CMD_START", chat_id=message.chat_id)
 
@@ -43,7 +46,7 @@ async def _send_free(message: Message, context: ContextTypes.DEFAULT_TYPE) -> No
     await message.reply_text(
         free_message(settings, channel_link=link),
         reply_markup=free_keyboard(settings),
-        parse_mode=ParseMode.MARKDOWN,
+        parse_mode=ParseMode.HTML,
         disable_web_page_preview=False,
     )
     log_event(logger, "BOT_CMD_FREE", chat_id=message.chat_id, has_link=bool(link))
@@ -87,7 +90,7 @@ async def _send_premium(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             telegram_id=telegram_id,
             username=username,
         ),
-        parse_mode=ParseMode.MARKDOWN,
+        parse_mode=ParseMode.HTML,
         disable_web_page_preview=True,
     )
     log_event(

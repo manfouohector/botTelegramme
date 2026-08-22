@@ -5,6 +5,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
+# pyrefly: ignore [missing-import]
 from telegram import Update
 
 from app.bot.application import create_application
